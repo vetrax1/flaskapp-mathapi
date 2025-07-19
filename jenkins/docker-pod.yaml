@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    jenkins-agent: docker
+spec:
+  containers:
+    - name: docker
+      image: docker:24-dind
+      securityContext:
+        privileged: true
+      command:
+        - dockerd-entrypoint.sh
+      args:
+        - --host=unix:///var/run/docker.sock
+      tty: true
+      volumeMounts:
+        - name: docker-config
+          mountPath: "/kaniko/.docker/config.json"
+          subPath: config.json
+          readOnly: true
+  volumes:
+    - name: docker-config
+      secret:
+        secretName: dockerhub-secret
